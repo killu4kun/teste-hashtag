@@ -15,6 +15,8 @@ conn = psycopg2.connect(
 @app.route('/webhook', methods=['POST'])
 def handle_webhook():
     data = request.get_json()  # Obtém os dados do webhook
+    
+    print(data)
 
     # Registra o webhook recebido no banco de dados
     cursor = conn.cursor()
