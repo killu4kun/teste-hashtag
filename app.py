@@ -21,7 +21,7 @@ def handle_webhook():
     # Registra o webhook recebido no banco de dados
     cursor = conn.cursor()
     cursor.execute(
-        "INSERT INTO webhooks (payload) VALUES (%s)",
+        "INSERT INTO webhooks (payload) VALUES (jsonb_build_object('payload', %s))",
         (str(data),)
     )
     conn.commit()
@@ -29,32 +29,32 @@ def handle_webhook():
 
     # Obtém os dados relevantes do webhook
     status = data.get('status')
-    customer_email = data.get('customer_email')
+    email = data.get('email')
 
     # Verifica o status do pagamento e realiza as tratativas apropriadas
     if status == 'aprovado':
-        print(f"Liberar acesso do e-mail: {customer_email}")
-        print(f"Enviar mensagem de boas vindas para o e-mail: {customer_email}")
+        print(f"Liberar acesso do e-mail: {email}")
+        print(f"Enviar mensagem de boas vindas para o e-mail: {email}")
         # Registra a tratativa no banco de dados
-        register_treatment('liberar acesso', customer_email)
-        register_treatment('enviar mensagem de boas vindas', customer_email)
+        register_treatment('liberar acesso', email)
+        register_treatment('enviar mensagem de boas vindas', email)
     elif status == 'recusado':
-        print(f"Enviar mensagem de pagamento recusado para o e-mail: {customer_email}")
+        print(f"Enviar mensagem de pagamento recusado para o e-mail: {email}")
         # Registra a tratativa no banco de dados
-        register_treatment('enviar mensagem de pagamento recusado', customer_email)
+        register_treatment('enviar mensagem de pagamento recusado', email)
     elif status == 'reembolsado':
-        print(f"Remover acesso do e-mail: {customer_email}")
+        print(f"Remover acesso do e-mail: {email}")
         # Registra a tratativa no banco de dados
-        register_treatment('remover acesso', customer_email)
+        register_treatment('remover acesso', email)
 
     return 'Webhook received'
 
 # Função para registrar as tratativas no banco de dados
-def register_treatment(action, customer_email):
+def register_treatment(action, email):
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO tratativas (acao, cliente_email) VALUES (%s, %s)",
-        (action, customer_email)
+        (action, email)
     )
     conn.commit()
     cursor.close()
