@@ -5,8 +5,8 @@ from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
+CORS(app)
 socketio = SocketIO(app)
-CORS(socketio)
 
 # Conexão com o banco de dados PostgreSQL
 conn = psycopg2.connect(
