@@ -76,7 +76,7 @@ def view_webhooks():
     cursor.close()
     return str(webhooks)
 
-@socketio.route('/api/webhooks', methods=['GET'])
+@app.route('/api/webhooks', methods=['GET'])
 def get_webhooks():
     # Consulte o banco de dados para obter todos os webhooks
     cursor = conn.cursor()
@@ -223,4 +223,4 @@ def handle_disconnect():
     print('Cliente desconectado do WebSocket')    
 
 if __name__ == '__main__':
-    socketio.run()
+    socketio.run(app)
