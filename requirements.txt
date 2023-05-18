@@ -3,3 +3,4 @@ psycopg2
 gunicorn
 flask_cors
 flask_sock
+flask_socketio

@@ -1,11 +1,11 @@
 from flask import Flask, request,jsonify
 import json
-from flask_sock import Sock
+from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
-sock = Sock(app)
+socketio = SocketIO(app)
 CORS(app)
 
 # Conexão com o banco de dados PostgreSQL
@@ -16,11 +16,6 @@ conn = psycopg2.connect(
     password="sdw0eNRVRDr4QWt0hpYK5X4ucIvabZPr"
 )
 
-@sock.route('/webhook')
-def echo(sock):
-    while True:
-        data = sock.receive()
-        sock.send(data)
 
 # Rota para receber os webhooks de pagamento
 @app.route('/webhook', methods=['POST'])
@@ -33,7 +28,7 @@ def handle_webhook():
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO webhooks (payload) VALUES (jsonb_build_object('payload', %s))",
-        (str(data),)
+        (str(data))
     )
     conn.commit()
     cursor.close()
@@ -58,6 +53,8 @@ def handle_webhook():
         # Registra a tratativa no banco de dados
         register_treatment('remover acesso', email)
 
+    socketio.emit('webhook', data , broadcast=True)
+    
     return 'Webhook received'
 
 # Função para registrar as tratativas no banco de dados
@@ -216,6 +213,14 @@ def insert_user(email, senha, token):
     )
     conn.commit()
     cursor.close()
+    
+@socketio.on('connect')
+def handle_connect():
+    print('Cliente conectado ao WebSocket')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Cliente desconectado do WebSocket')    
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run()
