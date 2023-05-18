@@ -1,7 +1,6 @@
 flask
 psycopg2
 gunicorn
-json
 flask_cors
 flask_sock
 flask_socketio
