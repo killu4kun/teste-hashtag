@@ -19,7 +19,7 @@ conn = psycopg2.connect(
 def handle_webhook():
     data = request.get_json()  # Obtém os dados do webhook
     
-    print(data)
+  
 
     # Registra o webhook recebido no banco de dados
     cursor = conn.cursor()
@@ -37,7 +37,6 @@ def handle_webhook():
     # Verifica o status do pagamento e realiza as tratativas apropriadas
     if status == 'aprovado':
         print(f"Liberar acesso do e-mail: {email}")
-        print(f"Enviar mensagem de boas vindas para o e-mail: {email}")
         # Registra a tratativa no banco de dados
         register_treatment('liberar acesso', email)
         register_treatment('enviar mensagem de boas vindas', email)
