@@ -1,10 +1,12 @@
 from flask import Flask, request,jsonify
 import json
+from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Conexão com o banco de dados PostgreSQL
 conn = psycopg2.connect(
@@ -13,6 +15,7 @@ conn = psycopg2.connect(
     user="osvgxikl",
     password="sdw0eNRVRDr4QWt0hpYK5X4ucIvabZPr"
 )
+
 
 # Rota para receber os webhooks de pagamento
 @app.route('/webhook', methods=['POST'])
@@ -50,6 +53,8 @@ def handle_webhook():
         # Registra a tratativa no banco de dados
         register_treatment('remover acesso', email)
 
+    socketio.emit('webhook', data , broadcast=True)
+    
     return 'Webhook received'
 
 # Função para registrar as tratativas no banco de dados
@@ -208,6 +213,14 @@ def insert_user(email, senha, token):
     )
     conn.commit()
     cursor.close()
+    
+@socketio.on('connect')
+def handle_connect():
+    print('Cliente conectado ao WebSocket')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Cliente desconectado do WebSocket')    
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app)
