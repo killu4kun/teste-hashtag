@@ -28,7 +28,7 @@ def handle_webhook():
     cursor = conn.cursor()
     cursor.execute(
         "INSERT INTO webhooks (payload) VALUES (jsonb_build_object('payload', %s))",
-        (str(data))
+        (str(data),)
     )
     conn.commit()
     cursor.close()
