@@ -1,9 +1,11 @@
 from flask import Flask, request,jsonify
 import json
+from flask_sock import Sock
 from flask_cors import CORS
 import psycopg2
 
 app = Flask(__name__)
+sock = Sock(app)
 CORS(app)
 
 # Conexão com o banco de dados PostgreSQL
@@ -13,6 +15,12 @@ conn = psycopg2.connect(
     user="osvgxikl",
     password="sdw0eNRVRDr4QWt0hpYK5X4ucIvabZPr"
 )
+
+@sock.route('/webhook')
+def echo(sock):
+    while True:
+        data = sock.receive()
+        sock.send(data)
 
 # Rota para receber os webhooks de pagamento
 @app.route('/webhook', methods=['POST'])
