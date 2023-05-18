@@ -6,7 +6,7 @@ import psycopg2
 
 app = Flask(__name__)
 socketio = SocketIO(app)
-CORS(app)
+CORS(socketio)
 
 # Conexão com o banco de dados PostgreSQL
 conn = psycopg2.connect(
